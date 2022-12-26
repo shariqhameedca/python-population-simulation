@@ -23,6 +23,8 @@ fertilityX = 18
 fertilityY = 35
 youthMortality = 45
 ageOfDeath = 80
+healthcare = 95
+warDeaths = 2
 
 populationList = []
 
@@ -61,7 +63,7 @@ def beginSim():
 beginSim()
 
 popTrack = []
-def runYear(food, agriculture, fertilityX, fertilityY, infantMortality):
+def runYear(food, agriculture, fertilityX, fertilityY, infantMortality, healthcare, warDeaths):
     harvest(food, agriculture)
     reproduce(fertilityX, fertilityY)
     
@@ -75,12 +77,22 @@ def runYear(food, agriculture, fertilityX, fertilityY, infantMortality):
     if random.randint(0,100)<disasterChance:
         del populationList[0:int(random.uniform(0.05,0.1)*len(populationList))]
 
+    # There's a 5% chance of people dying due to diseases (even before 80)
+    if random.randint(0,100)>healthcare:
+        del populationList[0:int(random.uniform(0.05,0.1)*len(populationList))]
+        
+    # War related deaths
+    if random.randint(0,100)<warDeaths:
+        del populationList[0:int(random.uniform(0.01, 0.02)*len(populationList))]
+        
     popTrack.append(len(populationList))
     infantMortality *= 0.9
-    return infantMortality
+    healthcare *= 1.1
+    warDeaths *= 0.9
+    return infantMortality, healthcare, warDeaths
 
 while len(populationList)<100000 and len(populationList) > 1:
-    infantMortality = runYear(food, agriculture, fertilityX, fertilityY, infantMortality)
+    infantMortality, healthcare, warDeaths = runYear(food, agriculture, fertilityX, fertilityY, infantMortality, healthcare, warDeaths)
 
 popTrack_np = np.array(popTrack)
 from matplotlib import pyplot as plt
